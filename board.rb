@@ -11,10 +11,6 @@ class Board
     make_pieces unless blank == true
   end
 
-  def make_grid
-    @grid = Array.new(SIZE) { Array.new(SIZE) }
-  end
-
   def dup
     new_board = self.class.new(true)
     self.grid.each do |row|
@@ -24,25 +20,6 @@ class Board
     end
     new_board
   end
-
-  def make_pieces
-    colors = {white: [6, 7, 8, 9],
-      red: [0, 1, 2, 3] }
-
-      SIZE.times do |i|
-        SIZE.times do |j|
-          unless [4, 5].include?(i)
-            color = colors.select{|k, v| v.include?(i)}.first
-            # If only one of the row, col index is odd
-            if [i,j].select{ |v| v % 2 != 0 }.count == 1
-              Piece.new(self, [i,j], color.first)
-            end
-
-          end
-        end
-      end
-
-    end
 
   def []= (pos, value)
     x, y = pos
@@ -57,13 +34,6 @@ class Board
     pos.all?{|i| (0...SIZE).include?(i)}
   end
 
-  def pieces
-    self.grid.flatten.compact
-  end
-
-  def no_piece?(color)
-    self.pieces.none?{|piece| piece.color == color }
-  end
   def over?
     self.no_piece?(:red) || self.no_piece?(:white)
   end
@@ -80,6 +50,37 @@ class Board
       end
       print "\n"
     end
+  end
+
+  protected
+
+  def make_grid
+    @grid = Array.new(SIZE) { Array.new(SIZE) }
+  end
+
+  def make_pieces
+    colors = {white: [6, 7, 8, 9], red: [0, 1, 2, 3] }
+
+    SIZE.times do |i|
+      SIZE.times do |j|
+        unless [4, 5].include?(i)
+          color = colors.select{|k, v| v.include?(i)}.first
+          # If only one of the row, col index is odd
+          if [i,j].select{ |v| v % 2 != 0 }.count == 1
+            Piece.new(self, [i,j], color.first)
+          end
+        end
+      end
+    end
+
+  end
+
+  def pieces
+    self.grid.flatten.compact
+  end
+
+  def no_piece?(color)
+    self.pieces.none?{|piece| piece.color == color }
   end
 
   def render_tile(piece, i, j)

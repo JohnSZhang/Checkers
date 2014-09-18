@@ -1,7 +1,9 @@
 # encoding: UTF-8
 require_relative "errors"
 require "colorize"
+
 class Piece
+
   OPP_COLOR = { red: :white,
     white: :red }
 
@@ -11,18 +13,38 @@ class Piece
   MOVES = { white: [ [-1, 1], [-1, -1]],
     red: [ [1, -1], [1, 1] ]}
 
-  attr_accessor :pos, :color, :upgrade
-
-  attr_reader :board, :back_row
+  attr_accessor :pos
+  attr_reader :color
 
   def initialize(board, pos, color, upgrade = false)
     @board = board
     board[pos] = self
     self.pos = pos
-    self.color = color
+    @color = color
     self.upgrade = upgrade
     @back_row = BACK_ROW[color]
   end
+
+
+  def perform_moves(seq)
+    unless self.valid_move_seq?(seq)
+      raise InvalidMoveError
+    else
+      self.perform_moves!(seq)
+    end
+  end
+
+  def render
+    (self.color == :red ) ? string = "|❀|".encode.red : string ="|✿|".white
+    string = string.blink if self.upgrade
+    string
+  end
+
+  protected
+
+  attr_reader :board, :back_row
+  attr_accessor :upgrade
+
 
   def slide_moves
     x, y = self.pos
@@ -112,14 +134,6 @@ class Piece
     end
   end
 
-  def perform_moves(seq)
-    unless self.valid_move_seq?(seq)
-      raise InvalidMoveError
-    else
-      self.perform_moves!(seq)
-    end
-  end
-
   def new_pos(pos)
     self.board[self.pos] = nil
     self.pos = pos
@@ -130,12 +144,6 @@ class Piece
     opp_piece = self.board[pos]
     opp_piece.pos = nil
     self.board[pos] = nil
-  end
-
-  def render
-    (self.color == :red ) ? string = "|❀|".encode.red : string ="|✿|".white
-    string = string.blink if self.upgrade
-    string
   end
 
 end

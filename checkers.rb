@@ -5,7 +5,7 @@ require_relative "render"
 class Game
   COLORS = [:white, :red]
   HOUSES = {white: :York, red: :Lancaster}
-  attr_reader :board
+
 
   def initialize
     @board = Board.new
@@ -19,11 +19,6 @@ class Game
     board.render
     @board[[2,5]].perform_moves([[0,3],[2,1]])
     board.render
-    p board.over?
-  end
-
-  def opponent(player)
-    COLORS[(COLORS.index(player) + 1) % 2]
   end
 
   def play
@@ -45,14 +40,25 @@ class Game
     sleep(4)
   end
 
+  protected
+
+  attr_reader :board
+
+  def opponent(player)
+    COLORS[(COLORS.index(player) + 1) % 2]
+  end
+
   def take_turn(player)
+
     self.board.render
     puts "It's House #{HOUSES[player]}'s turn, please pick a piece"
+
     selected_piece = self.board[self.get_piece]
     unless !selected_piece.nil? && selected_piece.color == player
       puts "That's not one of your pieces! #{HOUSES[player]}, let's try again"
       selected_piece = self.board[self.get_piece]
     end
+
     puts "Please enter where you want to move to"
     selected_piece.perform_moves(get_moves)
   end
@@ -60,7 +66,6 @@ class Game
 
   def get_moves
     moves = gets.chomp.split(' ')
-    p moves
     moves.map do |move|
       split_single_move(move)
     end
@@ -71,9 +76,7 @@ class Game
     move = move.split(',')
     x, y = move
     raise "Not valid position" unless Integer(x) || Interger(y)
-    test = move.map{|i| i.to_i}
-    p test
-    test
+    move.map{|i| i.to_i}
   end
 
   def title_screen
