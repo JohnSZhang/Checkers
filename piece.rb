@@ -1,4 +1,5 @@
 require_relative "errors"
+require "colorize"
 class Piece
   OPP_COLOR = { black: :red,
     red: :black }
@@ -39,8 +40,7 @@ class Piece
     MOVES[self.color].each_with_object([]) do |pos, moves|
 
       enemy_pos =[ x + pos.first, y + pos.last ]
-      new_pos =[ x + pos.first * 2 , x + pos.last * 2 ]
-
+      new_pos =[ x + pos.first * 2 , y + pos.last * 2 ]
 
       next false unless self.board.on_board?(new_pos)
       next false unless self.board[enemy_pos].is_a?(Piece)
@@ -54,12 +54,13 @@ class Piece
 
   def move(pos)
     possible_moves = self.slide_moves + self.jump_moves
+    p possible_moves
     raise InvalidMoveError unless possible_moves.map(&:first).include?(pos)
 
     move = possible_moves.select{ |el| el.first == pos }.flatten(1)
     self.new_pos(move.first)
     self.killer_move(move.last) unless move.last.empty?
-
+    self.upgrade = true if self.pos.first == back_row
   end
 
   def is_slide?(pos)
@@ -98,12 +99,14 @@ class Piece
       true
     end
   end
-  #
-  # def perform_moves(seq)
-  #   if self.valid_move_seq?(seq)
-  #     begin
-  #
-  # end
+
+  def perform_moves(seq)
+    unless self.valid_move_seq?(seq)
+      raise InvalidMoveError
+    else
+      self.perform_moves!(seq)
+    end
+  end
 
   def new_pos(pos)
     self.board[self.pos] = nil
@@ -118,7 +121,9 @@ class Piece
   end
 
   def render
-    self.color == :red ? "|X|" : "|O|"
+    (self.color == :red ) ? string = "|O|".red : string ="|X|".black
+    string = string.blink if self.upgrade
+    string
   end
 
 end

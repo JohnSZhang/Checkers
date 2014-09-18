@@ -1,5 +1,7 @@
 class InvalidMoveError < StandardError
-
+  def to_s
+    "You tried to move somewhere you weren't suppose to, take a closer look"
+  end
 end
 
 class JumpingAfterSlideError < InvalidMoveError
