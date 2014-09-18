@@ -1,5 +1,7 @@
 require_relative "piece"
 class Board
+  BACKGROUND = {1 => :light_black,
+                0 => :light_white}
   SIZE = 10
 
   attr_reader :grid
@@ -24,7 +26,7 @@ class Board
   end
 
   def make_pieces
-    colors = {black: [6, 7, 8, 9],
+    colors = {white: [6, 7, 8, 9],
       red: [0, 1, 2, 3] }
 
       SIZE.times do |i|
@@ -55,17 +57,37 @@ class Board
     pos.all?{|i| (0...SIZE).include?(i)}
   end
 
+  def pieces
+    self.grid.flatten.compact
+  end
+
+  def no_piece?(color)
+    self.pieces.none?{|piece| piece.color == color }
+  end
+  def over?
+    self.no_piece?(:red) || self.no_piece?(:white)
+  end
+
   def render
+    wipe
     print "| ||"
     print (0..9).to_a.join("||")
     print "|\n"
-    self.grid.each_with_index do |row, index|
-      print "|#{index}|"
-      row.each do |cell|
-        cell.is_a?(Piece) ? print(cell.render) : print("| |")
+    self.grid.each_with_index do |row, i|
+      print "|#{i}|"
+      row.each_with_index do |cell, j|
+        self.render_tile(cell, i, j)
       end
       print "\n"
     end
+  end
+
+  def render_tile(piece, i, j)
+    string = (piece.is_a?(Piece) ? piece.render : "| |")
+    bg_v = [i,j].inject(0){ |acc, v| acc + (v % 2) }
+    bg = (bg_v == 1 ? BACKGROUND[1] : BACKGROUND[0])
+    string = string.colorize(:background => bg)
+    print string
   end
 
 end

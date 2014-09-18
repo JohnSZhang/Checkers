@@ -1,36 +1,120 @@
 require_relative "board"
 require_relative "piece"
+require_relative "render"
+
 class Game
-  COLORS = [:black, :red]
+  COLORS = [:white, :red]
+  HOUSES = [white: :York, red: :Lancaster]
   attr_reader :board
 
   def initialize
-
     @board = Board.new
   end
 
-  def game
+  def test_mode
+    @board = Board.new(true)
+    Piece.new(board, [2,5], :white)
+    Piece.new(board, [1,4], :red)
+    Piece.new(board, [1,2], :red)
+    self.play
+  end
+
+  def opponent(player)
+    COLORS[(COLORS.index(player) + 1) % 2]
+  end
+
+  def play
+    # title_screen
+    current_player = :white
     until self.board.over?
+      wipe
       begin
-      rescue
-        self.get_turn(player)
+        self.take_turn(current_player)
+      rescue StandardError => e
+        puts e.message
         retry
       end
-      current_player = other_player
+      current_player = self.opponent(current_player)
+    end
+    wipe
+    board.render
+    puts "game is over, house #{HOUSES[opponent(current_player)]} won"
+    sleep(4)
+  end
+
+  def take_turn(player)
+    self.board.render
+    puts "House #{HOUSES[current_player]}, please pick a piece"
+    selected_piece = self.board[self.get_piece]
+    unless !selected_piece.nil? && selected_piece.color == player
+      puts "That's not one of your pieces! #{HOUSES[current_player]}, let's try again"
+      selected_piece = self.board[self.get_piece]
+    end
+    p selected_piece.slide_moves
+    puts "Please enter where you want to move to"
+    selected_piece.perform_moves(get_moves)
+  end
+
+
+  def get_moves
+    moves = gets.chomp.split(' ')
+    p moves
+    moves.map do |move|
+      split_single_move(move)
     end
 
-    puts "game is over, player X won"
   end
+
+  def split_single_move(move)
+    move = move.split(',')
+    x, y = move
+    raise "Not valid position" unless Integer(x) || Interger(y)
+    test = move.map{|i| i.to_i}
+    p test
+    test
+  end
+
+  def title_screen
+    wipe
+    text = "War".red.blink + " of the " + "Roses".white.blink
+    print text
+    sleep(3)
+  end
+
+
+  def get_piece
+    begin
+      pos = gets.chomp
+      pos = pos.split(',')
+      x, y = pos
+      raise "Not valid position" unless Integer(x) || Interger(y)
+      pos = [x.to_i, y.to_i]
+    rescue => e
+      puts e
+      retry
+    end
+    pos
+  end
+
 end
 
 if __FILE__ == $PROGRAM_NAME
-  board = Board.new(true)
-  piece1 = Piece.new(board, [2,2], :red)
-  piece2 = Piece.new(board, [3,3], :black)
-  piece3 = Piece.new(board, [5,5], :black)
-  piece4 = Piece.new(board, [7,5], :black)
-  piece1.perform_moves([[4,4],[6,6],[8,4]])
-  board.render
+
+  #TEST A GAME
+  game = Game.new
+  game.test_mode
+
+
+
+  # board = Board.new(true)
+  # piece1 = Piece.new(board, [2,2], :red)
+  # piece2 = Piece.new(board, [3,3], :black)
+  # piece3 = Piece.new(board, [5,5], :black)
+  # piece4 = Piece.new(board, [7,5], :black)
+  # p board.pieces.count
+  # piece1.perform_moves([[4,4],[6,6],[8,4]])
+  # board.render
+  # p board.over?
 
   #FOR TESTING FULL GAMES
   # board.render

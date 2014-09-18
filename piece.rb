@@ -1,13 +1,14 @@
+# encoding: UTF-8
 require_relative "errors"
 require "colorize"
 class Piece
-  OPP_COLOR = { black: :red,
-    red: :black }
+  OPP_COLOR = { red: :white,
+    red: :white }
 
-  BACK_ROW = { black: 0,
+  BACK_ROW = { white: 0,
     red: 9 }
 
-  MOVES = { black: [ [-1, 1], [-1, -1]],
+  MOVES = { white: [ [-1, 1], [-1, -1]],
     red: [ [1, -1], [1, 1] ]}
 
   attr_accessor :pos, :color, :upgrade
@@ -66,7 +67,6 @@ class Piece
 
   def move(pos)
     possible_moves = self.slide_moves + self.jump_moves
-
     raise InvalidMoveError unless possible_moves.map(&:first).include?(pos)
 
     move = possible_moves.select{ |el| el.first == pos }.flatten(1)
@@ -133,8 +133,8 @@ class Piece
   end
 
   def render
-    (self.color == :red ) ? string = "|O|".red : string ="|X|".black
-    string = string.yellow if self.upgrade
+    (self.color == :red ) ? string = "|❀|".encode.red : string ="|✿|".white
+    string = string.blink if self.upgrade
     string
   end
 
