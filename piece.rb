@@ -3,7 +3,7 @@ require_relative "errors"
 require "colorize"
 class Piece
   OPP_COLOR = { red: :white,
-    red: :white }
+    white: :red }
 
   BACK_ROW = { white: 0,
     red: 9 }

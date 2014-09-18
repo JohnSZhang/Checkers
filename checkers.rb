@@ -4,7 +4,7 @@ require_relative "render"
 
 class Game
   COLORS = [:white, :red]
-  HOUSES = [white: :York, red: :Lancaster]
+  HOUSES = {white: :York, red: :Lancaster}
   attr_reader :board
 
   def initialize
@@ -16,7 +16,10 @@ class Game
     Piece.new(board, [2,5], :white)
     Piece.new(board, [1,4], :red)
     Piece.new(board, [1,2], :red)
-    self.play
+    board.render
+    @board[[2,5]].perform_moves([[0,3],[2,1]])
+    board.render
+    p board.over?
   end
 
   def opponent(player)
@@ -24,7 +27,7 @@ class Game
   end
 
   def play
-    # title_screen
+    title_screen
     current_player = :white
     until self.board.over?
       wipe
@@ -44,13 +47,12 @@ class Game
 
   def take_turn(player)
     self.board.render
-    puts "House #{HOUSES[current_player]}, please pick a piece"
+    puts "It's House #{HOUSES[player]}'s turn, please pick a piece"
     selected_piece = self.board[self.get_piece]
     unless !selected_piece.nil? && selected_piece.color == player
-      puts "That's not one of your pieces! #{HOUSES[current_player]}, let's try again"
+      puts "That's not one of your pieces! #{HOUSES[player]}, let's try again"
       selected_piece = self.board[self.get_piece]
     end
-    p selected_piece.slide_moves
     puts "Please enter where you want to move to"
     selected_piece.perform_moves(get_moves)
   end
@@ -102,7 +104,7 @@ if __FILE__ == $PROGRAM_NAME
 
   #TEST A GAME
   game = Game.new
-  game.test_mode
+  game.play
 
 
 
