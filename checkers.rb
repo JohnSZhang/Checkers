@@ -109,8 +109,6 @@ if __FILE__ == $PROGRAM_NAME
   game = Game.new
   game.play
 
-
-
   # board = Board.new(true)
   # piece1 = Piece.new(board, [2,2], :red)
   # piece2 = Piece.new(board, [3,3], :black)
